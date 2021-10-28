@@ -1,6 +1,6 @@
 # wasm-dec-rs
 
-A simple wasm binary decoder. My first official [rust](https://www.rust-lang.org/) program.
+A simple [wasm](https://webassembly.org/) binary decoder. My first official [rust](https://www.rust-lang.org/) program.
 
 # usage
 
