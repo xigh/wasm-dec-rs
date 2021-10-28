@@ -1,3 +1,9 @@
+use std::env;
+
 fn main() {
-    println!("Hello, world!");
+    for (index, argument) in env::args().enumerate() {
+        if index > 0 {
+            println!("{}", argument);
+        }
+    }
 }
