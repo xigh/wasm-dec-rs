@@ -30,7 +30,8 @@ cat examples/ok1.wat
     (func (export "f") (result i32)
         i32.const 42 
     )
-)```
+)
+```
 
 cargo run examples/ok1.wasm
 
