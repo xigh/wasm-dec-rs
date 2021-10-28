@@ -27,8 +27,9 @@ fn process(name: &String) -> std::result::Result<(), String> {
         return Err(err.to_string());
     }
 
-    for value in buffer {
-        println!("{}", value);
+    println!("{}: {} bytes", name, buffer.len());
+    for (index, value) in buffer.iter().enumerate() {
+        println!("{}: {:x}", index, value);
     }
 
     Ok(())
