@@ -76,8 +76,6 @@ fn process(name: &String) -> std::result::Result<(), String> {
 
     let mut pos = 8usize;
     loop {
-        println!();
-
         // we need at least 1 bytes : type + size
         if pos >= len {
             break
@@ -87,7 +85,8 @@ fn process(name: &String) -> std::result::Result<(), String> {
         if tmp_size == 0 {
             return Err("invalid number of bytes".to_string());
         }
-        // println!("at offset {}, byte {}", pos, byte);
+
+        println!();
         match byte {
             0 => {
                 // custom
