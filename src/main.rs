@@ -23,6 +23,27 @@ fn u32_at(v: &Vec<u8>, index:usize) -> Option<u32> {
     Some(u32::from_le_bytes(y.unwrap()))
 }
 
+fn leb128_at(v: &Vec<u8>, index:usize) -> (u64, usize) {
+    let mut res = 0u64;
+    let mut shift = 0;
+    let mut idx = index;
+    let len = v.len();
+    loop {
+        if index >= len {
+            return (0, 0);
+        }
+        let byte = v[idx];
+        idx += 1;
+        let word = byte as u64;
+        // println!("{:x} shift {}", word, shift);
+        res |= (word & 0x7f) << shift;
+        if byte & 0x80 == 0 {
+            return (res, idx - index);
+        }
+        shift += 7;
+    }
+}
+
 fn process(name: &String) -> std::result::Result<(), String> {
     let f = File::open(name);
     if let Err(err) = f {
@@ -57,45 +78,70 @@ fn process(name: &String) -> std::result::Result<(), String> {
     loop {
         println!();
 
-        // we need at least 2 bytes : type + size
-        if pos + 1 >= len {
+        // we need at least 1 bytes : type + size
+        if pos >= len {
             break
         }
         let byte = buffer[pos];
-        let size = buffer[pos+1];
+        let (size, tmp_size) = leb128_at(&buffer, pos+1);
+        if tmp_size == 0 {
+            return Err("invalid number of bytes".to_string());
+        }
+        // println!("at offset {}, byte {}", pos, byte);
         match byte {
+            0 => {
+                // custom
+                println!("section \"custom\"");
+            },
             1 => {
-                // section "type"
+                // type
                 println!("section \"type\"");
-                println!("\t{} bytes", size);
-                pos += (size as usize) + 2;
+            },
+            2 => {
+                // import
+                println!("section \"import\"");
             },
             3 => {
-                // section "function"
+                // function
                 println!("section \"function\"");
-                println!("\t{} bytes", size);
-                pos += (size as usize) + 2;
+            },
+            4 => {
+                // table
+                println!("section \"table\"");
             },
             5 => {
-                // section "memory"
+                // memory
                 println!("section \"memory\"");
-                println!("\t{} bytes", size);
-                pos += (size as usize) + 2;
+            },
+            6 => {
+                // global
+                println!("section \"global\"");
             },
             7 => {
-                // section "export"
+                // export
                 println!("section \"export\"");
-                println!("\t{} bytes", size);
-                pos += (size as usize) + 2;
             },
-            10 => {
-                // section "code"
+            8 => {
+                // start
+                println!("section \"start\"");
+            },
+            9 => {
+                // element
+                println!("section \"element\"");
+            },
+            0x0a => {
+                // code
                 println!("section \"code\"");
-                println!("\t{} bytes", size);
-                pos += (size as usize) + 2;
             },
+            0x0b => {
+                // section "data"
+                println!("section \"data\"");
+            }
             _ => return Err(format!("unexpected byte {:x}", byte)),
         }
+        // println!("\t{:x} bytes [tmp_size={}]", size, tmp_size);
+        println!("\t{:x} bytes", size);
+        pos += (size as usize) + 1 + tmp_size;
     }
 
     // println!("{}: {} bytes", name, len);
