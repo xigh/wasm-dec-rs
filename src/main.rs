@@ -16,7 +16,7 @@ fn main() {
     }
 }
 
-fn u32_at(v: &Vec<u8>, index:usize) -> Option<u32> {
+fn leu32_at(v: &Vec<u8>, index:usize) -> Option<u32> {
     let sz = mem::size_of::<u32>();
     let slice = v.get(index..index+sz)?;
     let y = slice.try_into();
@@ -44,6 +44,10 @@ fn leb128_at(v: &Vec<u8>, index:usize) -> (u64, usize) {
     }
 }
 
+fn utf8_at(_v: &Vec<u8>, _index:usize) -> (String, usize) {
+    ("todo".to_string(), 0)
+}
+
 fn process(name: &String) -> std::result::Result<(), String> {
     let f = File::open(name);
     if let Err(err) = f {
@@ -62,13 +66,13 @@ fn process(name: &String) -> std::result::Result<(), String> {
         return Err("file too short".to_string());
     }
 
-    let magic = u32_at(&buffer, 0).unwrap();
+    let magic = leu32_at(&buffer, 0).unwrap();
     if magic != 0x6d736100 {
         return Err("wasm magic not found".to_string());
     }
     println!("Wasm magic {:x}", magic);
 
-    let version = u32_at(&buffer, 4).unwrap();
+    let version = leu32_at(&buffer, 4).unwrap();
     if version != 1 {
         return Err("unsuppored wasm version".to_string());
     }
@@ -91,6 +95,7 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0 => {
                 // custom
                 println!("section \"custom\"");
+                println!("\t{}", utf8_at(&buffer, pos+tmp_size).0);
             },
             1 => {
                 // type
