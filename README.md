@@ -4,7 +4,7 @@ This program *wasm-dec-rs* is a simple [wasm](https://webassembly.org/) binary d
 
 I had to write this in order to learn how it works and how we can "tweak" / "optimize" rust wasm32-none-none generated binaries.
 
-I'll describe how as soon as possible.
+I'll describe how as soon as possible in another github repository.
 
 # Usage
 
