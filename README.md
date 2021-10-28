@@ -2,7 +2,7 @@
 
 This program *wasm-dec-rs* is a simple [wasm](https://webassembly.org/) binary decoder. My first official [rust](https://www.rust-lang.org/) program in fact.
 
-I had to write this in order to learn how it works and how we can "tweak" / "optimize" rust wasm32-none-none generated binaries.
+I had to write this in order to learn how it works and how we can "tweak" / "optimize" rust wasm32-unknown-unknown generated binaries.
 
 I'll describe how as soon as possible in another github repository.
 
