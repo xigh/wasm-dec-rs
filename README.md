@@ -47,23 +47,19 @@ section "type"
         range=[10-14]
         01 60 00 01 7f
         func 0/1:
-                result 0: type=7f i32  
-        5 bytes
+                result 0: type=7f i32
 
 section "function"
         range=[17-18]
         01 00
-        2 bytes
 
 section "export"
         range=[21-25]
         01 01 66 00 00
-        5 bytes
 
 section "code"
         range=[28-33]
         01 04 00 41 2a 0b
-        6 bytes
 ```
 
 # Resources

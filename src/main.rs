@@ -155,6 +155,9 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x02 => {
                 // import
                 println!("section \"import\"");
+                let start = pos+1+word_size;
+                let end = start+section_size;
+                dump_bytes(&buffer, start, end);
             },
             0x03 => {
                 // function
@@ -166,6 +169,7 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x04 => {
                 // table
                 println!("section \"table\"");
+                println!("\t{:x} bytes", section_size);
             },
             0x05 => {
                 // memory
@@ -177,6 +181,7 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x06 => {
                 // global
                 println!("section \"global\"");
+                println!("\t{:x} bytes", section_size);
             },
             0x07 => {
                 // export
@@ -188,10 +193,12 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x08 => {
                 // start
                 println!("section \"start\"");
+                println!("\t{:x} bytes", section_size);
             },
             0x09 => {
                 // element
                 println!("section \"element\"");
+                println!("\t{:x} bytes", section_size);
             },
             0x0a => {
                 // code
@@ -203,11 +210,11 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x0b => {
                 // section "data"
                 println!("section \"data\"");
+                println!("\t{:x} bytes", section_size);
             }
             _ => return Err(format!("unexpected byte {:x}", byte)),
         }
         // println!("\t{:x} bytes [tmp_size={}]", size, tmp_size);
-        println!("\t{:x} bytes", section_size);
         pos += (section_size as usize) + 1 + word_size;
     }
 
