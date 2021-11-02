@@ -44,19 +44,25 @@ Wasm magic 6d736100
         version 1
 
 section "type"
-        05 01 60 00 01
+        range=[10-14]
+        01 60 00 01 7f
+        func 0/1:
+                result 0: type=7f i32  
         5 bytes
 
 section "function"
-        02 01
+        range=[17-18]
+        01 00
         2 bytes
 
 section "export"
-        05 01 01 66 00
+        range=[21-25]
+        01 01 66 00 00
         5 bytes
 
 section "code"
-        06 01 04 00 41 2a
+        range=[28-33]
+        01 04 00 41 2a 0b
         6 bytes
 ```
 
