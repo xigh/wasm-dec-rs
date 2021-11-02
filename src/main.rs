@@ -92,53 +92,58 @@ fn process(name: &String) -> std::result::Result<(), String> {
 
         println!();
         match byte {
-            0 => {
+            0x00 => {
                 // custom
                 println!("section \"custom\"");
                 println!("\t{}", utf8_at(&buffer, pos+word_size).0);
             },
-            1 => {
+            0x01 => {
                 // type
                 println!("section \"type\"");
                 let start = pos+word_size;
                 let end = start+section_size;
                 dump_bytes(&buffer, start, end);
+                loop {
+                    match buffer[start] {
+                    0x05 => { }
+                    }
+                }
             },
-            2 => {
+            0x02 => {
                 // import
                 println!("section \"import\"");
             },
-            3 => {
+            0x03 => {
                 // function
                 println!("section \"function\"");
                 let start = pos+word_size;
                 let end = start+section_size;
                 dump_bytes(&buffer, start, end);
             },
-            4 => {
+            0x04 => {
                 // table
                 println!("section \"table\"");
             },
-            5 => {
+            0x05 => {
                 // memory
                 println!("section \"memory\"");
             },
-            6 => {
+            0x06 => {
                 // global
                 println!("section \"global\"");
             },
-            7 => {
+            0x07 => {
                 // export
                 println!("section \"export\"");
                 let start = pos+word_size;
                 let end = start+section_size;
                 dump_bytes(&buffer, start, end);
             },
-            8 => {
+            0x08 => {
                 // start
                 println!("section \"start\"");
             },
-            9 => {
+            0x09 => {
                 // element
                 println!("section \"element\"");
             },
