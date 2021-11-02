@@ -66,6 +66,6 @@ Here are a list of websites I read to learn about WebAssembly :
 
 - [https://webassembly.org](https://webassembly.org)
 - [https://webassembly.github.io/spec/core/binary/index.html](https://webassembly.github.io/spec/core/binary/index.html)
-- [https://hackernoon.com/webassembly-binary-format-explained-part-2-hj1t33yp](https://hackernoon.com/webassembly-binary-format-explained-part-2-hj1t33yp)
+- [https://hackernoon.com/webassembly-binary-format-explained-part-2-hj1t33yp?source=rss]https://hackernoon.com/webassembly-binary-format-explained-part-2-hj1t33yp?source=rss)
 - [https://github.com/sunfishcode/wasm-reference-manual/blob/master/WebAssembly.md](https://github.com/sunfishcode/wasm-reference-manual/blob/master/WebAssembly.md)
 - [https://en.wikipedia.org/wiki/LEB128](https://en.wikipedia.org/wiki/LEB128)
