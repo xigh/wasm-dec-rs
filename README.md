@@ -44,22 +44,27 @@ Wasm magic 6d736100
         version 1
 
 section "type"
-        range=[10-14]
-        01 60 00 01 7f
-        func 0/1:
-                result 0: type=7f i32
+        range=[10-25]
+        03 60 00 01 7f 60 01 7f 01 7f 60 02 7f 7f 01 7f
+        0: fn() -> i32
+        1: fn(i32) -> i32
+        2: fn(i32, i32) -> i32
 
 section "function"
-        range=[17-18]
-        01 00
+        range=[28-31]
+        03 00 01 02
+
+section "memory"
+        range=[34-37]
+        01 03 01 01
 
 section "export"
-        range=[21-25]
-        01 01 66 00 00
+        range=[40-52]
+        03 01 66 00 00 01 61 00 01 01 73 00 02
 
 section "code"
-        range=[28-33]
-        01 04 00 41 2a 0b
+        range=[55-73]
+        03 04 00 41 2a 0b 04 00 20 00 0b 07 00 20 00 20 01 6a 0b 
 ```
 
 # Resources

@@ -16,14 +16,14 @@ fn main() {
     }
 }
 
-fn leu32_at(v: &Vec<u8>, index:usize) -> Option<u32> {
+fn leu32_at(v: &Vec<u8>, index: usize) -> Option<u32> {
     let sz = mem::size_of::<u32>();
-    let slice = v.get(index..index+sz)?;
+    let slice = v.get(index..index + sz)?;
     let y = slice.try_into();
     Some(u32::from_le_bytes(y.unwrap()))
 }
 
-fn leb128_at(v: &Vec<u8>, index:usize) -> (usize, usize) {
+fn leb128_at(v: &Vec<u8>, index: usize) -> (usize, usize) {
     let mut res = 0usize;
     let mut shift = 0;
     let mut idx = index;
@@ -44,7 +44,7 @@ fn leb128_at(v: &Vec<u8>, index:usize) -> (usize, usize) {
     }
 }
 
-fn utf8_at(_v: &Vec<u8>, _index:usize) -> (String, usize) {
+fn utf8_at(_v: &Vec<u8>, _index: usize) -> (String, usize) {
     ("todo".to_string(), 0)
 }
 
@@ -82,10 +82,10 @@ fn process(name: &String) -> std::result::Result<(), String> {
     loop {
         // we need at least 1 bytes : type + size
         if pos >= len {
-            break
+            break;
         }
         let byte = buffer[pos];
-        let (section_size, word_size) = leb128_at(&buffer, pos+1);
+        let (section_size, word_size) = leb128_at(&buffer, pos + 1);
         if word_size == 0 {
             return Err("invalid number of bytes".to_string());
         }
@@ -95,13 +95,13 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x00 => {
                 // custom
                 println!("section \"custom\"");
-                println!("\t{}", utf8_at(&buffer, pos+word_size).0);
-            },
+                println!("\t{}", utf8_at(&buffer, pos + word_size).0);
+            }
             0x01 => {
                 // type
                 println!("section \"type\"");
-                let mut start = pos+1+word_size;
-                let end = start+section_size;
+                let mut start = pos + 1 + word_size;
+                let end = start + section_size;
                 dump_bytes(&buffer, start, end);
                 let tcount = buffer[start];
                 start += 1;
@@ -111,11 +111,10 @@ fn process(name: &String) -> std::result::Result<(), String> {
                     if ftype != 0x60 {
                         panic!("expected function-type, got {:02x}", ftype);
                     }
-                    println!("\tfunc {}/{}:", n, tcount);
-
+                    let mut params: Vec<&str> = Vec::new();
                     let pcount = buffer[start];
                     start += 1;
-                    for p in 0..pcount {
+                    for _ in 0..pcount {
                         let ptype = buffer[start];
                         start += 1;
                         let tname = match ptype {
@@ -127,14 +126,17 @@ fn process(name: &String) -> std::result::Result<(), String> {
                             0x6f => "externref",
                             0x60 => "func",
                             0x40 => "resulttype",
-                            _ => "unkown",
+                            _ => {
+                                panic!("unknown type {:02x}", ptype)
+                            }
                         };
-                        println!("\t\tparam {}: type={:02x} {}", p, ptype, tname);
+                        params.push(tname);
                     }
 
+                    let mut results: Vec<&str> = Vec::new();
                     let rcount = buffer[start];
                     start += 1;
-                    for r in 0..rcount {
+                    for _ in 0..rcount {
                         let rtype = buffer[start];
                         start += 1;
                         let tname = match rtype {
@@ -146,67 +148,76 @@ fn process(name: &String) -> std::result::Result<(), String> {
                             0x6f => "externref",
                             0x60 => "func",
                             0x40 => "resulttype",
-                            _ => "unkown",
+                            _ => {
+                                panic!("unknown type {:02x}", rtype)
+                            }
                         };
-                        println!("\t\tresult {}: type={:02x} {}", r, rtype, tname);
+                        results.push(tname);
                     }
+
+                    let res = match results.len() {
+                        0 => "".to_string(),
+                        1 => format!("-> {}", results[0]),
+                        _ => format!("-> ({})", results.join(", ")),
+                    };
+                    println!("\t{}: fn({}) {}", n, params.join(", "), res);
                 }
-            },
+            }
             0x02 => {
                 // import
                 println!("section \"import\"");
-                let start = pos+1+word_size;
-                let end = start+section_size;
+                let start = pos + 1 + word_size;
+                let end = start + section_size;
                 dump_bytes(&buffer, start, end);
-            },
+            }
             0x03 => {
                 // function
                 println!("section \"function\"");
-                let start = pos+1+word_size;
-                let end = start+section_size;
+                let start = pos + 1 + word_size;
+                let end = start + section_size;
                 dump_bytes(&buffer, start, end);
-            },
+            }
             0x04 => {
                 // table
                 println!("section \"table\"");
                 println!("\t{:x} bytes", section_size);
-            },
+            }
             0x05 => {
                 // memory
                 println!("section \"memory\"");
-                let start = pos+1+word_size;
-                let end = start+section_size;
+                let start = pos + 1 + word_size;
+                let end = start + section_size;
                 dump_bytes(&buffer, start, end);
-            },
+            }
             0x06 => {
                 // global
                 println!("section \"global\"");
                 println!("\t{:x} bytes", section_size);
-            },
+            }
             0x07 => {
                 // export
                 println!("section \"export\"");
-                let start = pos+1+word_size;
-                let end = start+section_size;
+                let start = pos + 1 + word_size;
+                let end = start + section_size;
                 dump_bytes(&buffer, start, end);
-            },
+            }
             0x08 => {
                 // start
                 println!("section \"start\"");
                 println!("\t{:x} bytes", section_size);
-            },
+            }
             0x09 => {
                 // element
                 println!("section \"element\"");
                 println!("\t{:x} bytes", section_size);
-            },
+            }
             0x0a => {
                 // code
                 println!("section \"code\"");
-                let start = pos+1+word_size;
-                let end = start+section_size;
+                let start = pos + 1 + word_size;
+                let end = start + section_size;
                 dump_bytes(&buffer, start, end);
-            },
+            }
             0x0b => {
                 // section "data"
                 println!("section \"data\"");
@@ -226,8 +237,8 @@ fn process(name: &String) -> std::result::Result<(), String> {
     Ok(())
 }
 
-fn dump_bytes(buffer:&Vec<u8>, start:usize, end:usize) {
-    println!("\trange=[{}-{}]", start, end-1);
+fn dump_bytes(buffer: &Vec<u8>, start: usize, end: usize) {
+    println!("\trange=[{}-{}]", start, end - 1);
     print!("\t");
     for i in start..end {
         print!("{:02x} ", buffer[i])
