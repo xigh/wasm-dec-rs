@@ -23,8 +23,8 @@ fn leu32_at(v: &Vec<u8>, index:usize) -> Option<u32> {
     Some(u32::from_le_bytes(y.unwrap()))
 }
 
-fn leb128_at(v: &Vec<u8>, index:usize) -> (u64, usize) {
-    let mut res = 0u64;
+fn leb128_at(v: &Vec<u8>, index:usize) -> (usize, usize) {
+    let mut res = 0usize;
     let mut shift = 0;
     let mut idx = index;
     let len = v.len();
@@ -34,7 +34,7 @@ fn leb128_at(v: &Vec<u8>, index:usize) -> (u64, usize) {
         }
         let byte = v[idx];
         idx += 1;
-        let word = byte as u64;
+        let word = byte as usize;
         // println!("{:x} shift {}", word, shift);
         res |= (word & 0x7f) << shift;
         if byte & 0x80 == 0 {
@@ -85,8 +85,8 @@ fn process(name: &String) -> std::result::Result<(), String> {
             break
         }
         let byte = buffer[pos];
-        let (size, tmp_size) = leb128_at(&buffer, pos+1);
-        if tmp_size == 0 {
+        let (section_size, word_size) = leb128_at(&buffer, pos+1);
+        if word_size == 0 {
             return Err("invalid number of bytes".to_string());
         }
 
@@ -95,11 +95,14 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0 => {
                 // custom
                 println!("section \"custom\"");
-                println!("\t{}", utf8_at(&buffer, pos+tmp_size).0);
+                println!("\t{}", utf8_at(&buffer, pos+word_size).0);
             },
             1 => {
                 // type
                 println!("section \"type\"");
+                let start = pos+word_size;
+                let end = start+section_size;
+                dump_bytes(&buffer, start, end);
             },
             2 => {
                 // import
@@ -108,6 +111,9 @@ fn process(name: &String) -> std::result::Result<(), String> {
             3 => {
                 // function
                 println!("section \"function\"");
+                let start = pos+word_size;
+                let end = start+section_size;
+                dump_bytes(&buffer, start, end);
             },
             4 => {
                 // table
@@ -124,6 +130,9 @@ fn process(name: &String) -> std::result::Result<(), String> {
             7 => {
                 // export
                 println!("section \"export\"");
+                let start = pos+word_size;
+                let end = start+section_size;
+                dump_bytes(&buffer, start, end);
             },
             8 => {
                 // start
@@ -136,6 +145,9 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x0a => {
                 // code
                 println!("section \"code\"");
+                let start = pos+word_size;
+                let end = start+section_size;
+                dump_bytes(&buffer, start, end);
             },
             0x0b => {
                 // section "data"
@@ -144,8 +156,8 @@ fn process(name: &String) -> std::result::Result<(), String> {
             _ => return Err(format!("unexpected byte {:x}", byte)),
         }
         // println!("\t{:x} bytes [tmp_size={}]", size, tmp_size);
-        println!("\t{:x} bytes", size);
-        pos += (size as usize) + 1 + tmp_size;
+        println!("\t{:x} bytes", section_size);
+        pos += (section_size as usize) + 1 + word_size;
     }
 
     // println!("{}: {} bytes", name, len);
@@ -154,4 +166,12 @@ fn process(name: &String) -> std::result::Result<(), String> {
     // }
 
     Ok(())
+}
+
+fn dump_bytes(buffer:&Vec<u8>, start:usize, end:usize) {
+    print!("\t");
+    for i in start..end {
+        print!("{:02x} ", buffer[i])
+    }
+    println!()
 }
