@@ -100,12 +100,55 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x01 => {
                 // type
                 println!("section \"type\"");
-                let start = pos+word_size;
+                let mut start = pos+1+word_size;
                 let end = start+section_size;
                 dump_bytes(&buffer, start, end);
-                loop {
-                    match buffer[start] {
-                    0x05 => { }
+                let tcount = buffer[start];
+                start += 1;
+                for n in 0..tcount {
+                    let ftype = buffer[start];
+                    start += 1;
+                    if ftype != 0x60 {
+                        panic!("expected function-type, got {:02x}", ftype);
+                    }
+                    println!("\tfunc {}/{}:", n, tcount);
+
+                    let pcount = buffer[start];
+                    start += 1;
+                    for p in 0..pcount {
+                        let ptype = buffer[start];
+                        start += 1;
+                        let tname = match ptype {
+                            0x7f => "i32",
+                            0x7e => "i64",
+                            0x7d => "f32",
+                            0x7c => "f64",
+                            0x70 => "funcref",
+                            0x6f => "externref",
+                            0x60 => "func",
+                            0x40 => "resulttype",
+                            _ => "unkown",
+                        };
+                        println!("\t\tparam {}: type={:02x} {}", p, ptype, tname);
+                    }
+
+                    let rcount = buffer[start];
+                    start += 1;
+                    for r in 0..rcount {
+                        let rtype = buffer[start];
+                        start += 1;
+                        let tname = match rtype {
+                            0x7f => "i32",
+                            0x7e => "i64",
+                            0x7d => "f32",
+                            0x7c => "f64",
+                            0x70 => "funcref",
+                            0x6f => "externref",
+                            0x60 => "func",
+                            0x40 => "resulttype",
+                            _ => "unkown",
+                        };
+                        println!("\t\tresult {}: type={:02x} {}", r, rtype, tname);
                     }
                 }
             },
@@ -116,7 +159,7 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x03 => {
                 // function
                 println!("section \"function\"");
-                let start = pos+word_size;
+                let start = pos+1+word_size;
                 let end = start+section_size;
                 dump_bytes(&buffer, start, end);
             },
@@ -127,6 +170,9 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x05 => {
                 // memory
                 println!("section \"memory\"");
+                let start = pos+1+word_size;
+                let end = start+section_size;
+                dump_bytes(&buffer, start, end);
             },
             0x06 => {
                 // global
@@ -135,7 +181,7 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x07 => {
                 // export
                 println!("section \"export\"");
-                let start = pos+word_size;
+                let start = pos+1+word_size;
                 let end = start+section_size;
                 dump_bytes(&buffer, start, end);
             },
@@ -150,7 +196,7 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x0a => {
                 // code
                 println!("section \"code\"");
-                let start = pos+word_size;
+                let start = pos+1+word_size;
                 let end = start+section_size;
                 dump_bytes(&buffer, start, end);
             },
@@ -174,6 +220,7 @@ fn process(name: &String) -> std::result::Result<(), String> {
 }
 
 fn dump_bytes(buffer:&Vec<u8>, start:usize, end:usize) {
+    println!("\trange=[{}-{}]", start, end-1);
     print!("\t");
     for i in start..end {
         print!("{:02x} ", buffer[i])
