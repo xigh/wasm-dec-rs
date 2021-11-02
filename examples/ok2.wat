@@ -14,4 +14,11 @@
                 (local.get $y)
         )
     )
+    (func (export "x") (param $x i32) (param $y i32) (result i32)
+        (
+            i32.sub 
+                (local.get $x)
+                (local.get $y)
+        )
+    )
 )
