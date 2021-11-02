@@ -44,15 +44,19 @@ Wasm magic 6d736100
         version 1
 
 section "type"
+        05 01 60 00 01
         5 bytes
 
 section "function"
+        02 01
         2 bytes
 
 section "export"
+        05 01 01 66 00
         5 bytes
 
 section "code"
+        06 01 04 00 41 2a
         6 bytes
 ```
 
