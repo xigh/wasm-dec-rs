@@ -101,8 +101,8 @@ fn process(name: &String) -> std::result::Result<(), String> {
                 // type
                 println!("section \"type\"");
                 let mut start = pos + 1 + word_size;
-                let end = start + section_size;
-                dump_bytes(&buffer, start, end);
+                // let end = start + section_size;
+                // dump_bytes(&buffer, start, end);
                 let tcount = buffer[start];
                 start += 1;
                 for n in 0..tcount {
@@ -176,6 +176,8 @@ fn process(name: &String) -> std::result::Result<(), String> {
                 let start = pos + 1 + word_size;
                 let end = start + section_size;
                 dump_bytes(&buffer, start, end);
+                let fcount = buffer[start];
+                println!("\tfound {} functions", fcount);
             }
             0x04 => {
                 // table
@@ -214,9 +216,22 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x0a => {
                 // code
                 println!("section \"code\"");
-                let start = pos + 1 + word_size;
-                let end = start + section_size;
-                dump_bytes(&buffer, start, end);
+                let mut start = pos + 1 + word_size;
+                // let end = start + section_size;
+                // dump_bytes(&buffer, start, end);
+                let fcount = buffer[start];
+                start += 1;
+                for f in 0..fcount {
+                    let ocount = buffer[start];
+                    start += 1;
+                    print!("\t{}: ", f);
+                    for _ in 0..ocount {
+                        let op = buffer[start];
+                        start += 1;
+                        print!("{:02x} ", op);
+                    }
+                    println!();
+                }
             }
             0x0b => {
                 // section "data"
