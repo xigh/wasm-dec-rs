@@ -1,4 +1,4 @@
-;; wat2wasm -o examples/ok1.wasm examples/ok1.wat
+;; wat2wasm --enable-threads -o examples/ok2.wasm examples/ok2.wat
 (module
     (memory 1 1 shared)
     (func (export "f") (result i32)
