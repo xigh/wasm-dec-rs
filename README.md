@@ -37,34 +37,37 @@ cat examples/ok1.wat
 )
 ```
 
-cargo run examples/ok1.wasm
+cargo run examples/ok2.wasm
 
 ```text
-Wasm magic 6d736100
-        version 1
+Wasm magic 6d736100   
+        version 1     
 
-section "type"
-        range=[10-25]
-        03 60 00 01 7f 60 01 7f 01 7f 60 02 7f 7f 01 7f
+section "type"        
         0: fn() -> i32
         1: fn(i32) -> i32
         2: fn(i32, i32) -> i32
 
 section "function"
-        range=[28-31]
-        03 00 01 02
+        range=[28-32]
+        04 00 01 02 02
+        found 4 functions
 
 section "memory"
-        range=[34-37]
+        range=[35-38]
         01 03 01 01
 
 section "export"
-        range=[40-52]
-        03 01 66 00 00 01 61 00 01 01 73 00 02
+        0: hello type=Function index=0
+        1: world type=Function index=1
+        2: foobar type=Function index=2
+        3: another_test type=Function index=3
 
 section "code"
-        range=[55-73]
-        03 04 00 41 2a 0b 04 00 20 00 0b 07 00 20 00 20 01 6a 0b 
+        0: 00 41 2a 0b
+        1: 00 20 00 0b
+        2: 00 20 00 20 01 6a 0b
+        3: 00 20 00 20 01 6b 0b
 ```
 
 # Resources
