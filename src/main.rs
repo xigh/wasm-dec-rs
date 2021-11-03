@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::BufReader;
 use std::io::Read;
 use std::mem;
+use std::str;
 // use std::vec;
 use core::convert::TryInto;
 
@@ -44,8 +45,25 @@ fn leb128_at(v: &Vec<u8>, index: usize) -> (usize, usize) {
     }
 }
 
-fn utf8_at(_v: &Vec<u8>, _index: usize) -> (String, usize) {
-    ("todo".to_string(), 0)
+fn utf8_at(buffer: &Vec<u8>, start: usize) -> (String, usize) {
+    let mut end: usize = 0;
+    for i in start..buffer.len() {
+        let b = buffer[i];
+        if b == 0 {
+            end = i;
+            break;
+        }
+    }
+    return match buffer.get(start..end) {
+        Some(bytes) => {
+            let r = match str::from_utf8(bytes) {
+                Ok(s) => s,
+                Err(_) => "",
+            };
+            (r.to_string(), end-start)
+        }
+        None => ("".to_string(), 0),
+    };
 }
 
 fn process(name: &String) -> std::result::Result<(), String> {
@@ -199,9 +217,32 @@ fn process(name: &String) -> std::result::Result<(), String> {
             0x07 => {
                 // export
                 println!("section \"export\"");
-                let start = pos + 1 + word_size;
-                let end = start + section_size;
-                dump_bytes(&buffer, start, end);
+                let mut start = pos + 1 + word_size;
+                // let end = start + section_size;
+                // dump_bytes(&buffer, start, end);
+                let ecount = buffer[start];
+                start += 1;
+                for e in 0..ecount {
+                    let nsize = buffer[start] as usize;
+                    let name = match buffer.get(start+1..start+1+nsize) {
+                        Some(bytes) => match str::from_utf8(bytes) {
+                            Ok(s) => s,
+                            Err(_) => "",
+                        },
+                        None => "",
+                    };
+                    start += nsize + 1;
+                    let kind = match buffer[start] {
+                        0x00 => "Function",
+                        0x01 => "Table",
+                        0x02 => "Memory",
+                        0x03 => "Global",
+                        _ => "Unknown",
+                    };
+                    let fidx = buffer[start+1];
+                    start += 2;
+                    println!("\t{}: {} type={} index={}", e, name, kind, fidx);
+                }
             }
             0x08 => {
                 // start
