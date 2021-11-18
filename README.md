@@ -64,10 +64,25 @@ section "export"
         3: another_test type=Function index=3
 
 section "code"
-        0: 00 41 2a 0b
-        1: 00 20 00 0b
-        2: 00 20 00 20 01 6a 0b
-        3: 00 20 00 20 01 6b 0b
+        0:      0 local
+                41 2a           i32.const 42
+                0b              end
+
+        1:      0 local
+                20 00           local.get 0
+                0b              end
+
+        2:      0 local
+                20 00           local.get 0
+                20 01           local.get 1
+                6a              i32.add
+                0b              end
+
+        3:      0 local
+                20 00           local.get 0
+                20 01           local.get 1
+                6b              i32.sub
+                0b              end
 ```
 
 # Resources

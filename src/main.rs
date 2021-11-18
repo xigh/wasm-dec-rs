@@ -213,6 +213,9 @@ fn process(name: &String) -> std::result::Result<(), String> {
                 // global
                 println!("section \"global\"");
                 println!("\t{:x} bytes", section_size);
+                let start = pos + 1 + word_size;
+                let end = start + section_size;
+                dump_bytes(&buffer, start, end);
             }
             0x07 => {
                 // export
@@ -241,7 +244,7 @@ fn process(name: &String) -> std::result::Result<(), String> {
                     };
                     let fidx = buffer[start+1];
                     start += 2;
-                    println!("\t{}: {} type={} index={}", e, name, kind, fidx);
+                    println!("\t{}: {:-20} type={:-10} index={}", e, name, kind, fidx);
                 }
             }
             0x08 => {
@@ -256,16 +259,16 @@ fn process(name: &String) -> std::result::Result<(), String> {
             }
             0x0a => {
                 // code
-                println!("section \"code\"");
                 let mut start = pos + 1 + word_size;
                 // let end = start + section_size;
                 // dump_bytes(&buffer, start, end);
                 let fcount = buffer[start];
+                println!("section \"code\" {} entries", fcount);
                 start += 1;
                 for f in 0..fcount {
                     let ocount = buffer[start];
                     start += 1;
-                    print!("\t{}: ", f);
+                    print!("\t{}: {} bytes: ", f, ocount);
                     for _ in 0..ocount {
                         let op = buffer[start];
                         start += 1;
