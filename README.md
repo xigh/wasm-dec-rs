@@ -1,3 +1,5 @@
+![Not Working Yet](./img/badges/notworkingyet.svg)
+
 # Introduction
 
 This program *wasm-dec-rs* is a simple [wasm](https://webassembly.org/) binary decoder. My first official [rust](https://www.rust-lang.org/) program in fact.
